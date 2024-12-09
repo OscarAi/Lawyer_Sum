@@ -1,0 +1,162 @@
+/* General Body Styling */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-image: url('/static/Back.jpg'); /* Add your background image */
+    background-size: cover; /* Cover the entire page */
+    background-position: center; /* Center the image */
+    background-attachment: fixed; /* Make the background static */
+    color: white; /* Default text color */
+}
+
+/* Header Styling */
+header {
+    background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent background */
+    color: white;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Container Styling */
+.container {
+    max-width: 600px;
+    margin: 50px auto;
+    background: rgba(0, 0, 0, 0.7); /* Semi-transparent black */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); /* Slight shadow for depth */
+    text-align: center;
+}
+
+/* Headings Styling */
+h1, h2 {
+    font-size: 2em;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7); /* Slight shadow for text */
+}
+
+/* Labels */
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: left;
+}
+
+/* Logout Button */
+.logout-btn {
+    background-color: #ff4d4d; /* Red button color */
+    color: white;
+    padding: 10px 15px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 1em;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+/* Logout Button Hover Effect */
+.logout-btn:hover {
+    background-color: #cc0000; /* Darker red on hover */
+}
+
+/* Input Fields */
+input[type="text"], 
+input[type="password"], 
+input[type="file"], 
+textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 5px;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3); /* Subtle inner shadow */
+}
+
+/* Textarea Specific Styles */
+textarea {
+    resize: vertical;
+}
+
+/* Submit Buttons */
+button, 
+.btn {
+    background-color: #007bff; /* Blue color for buttons */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+    cursor: pointer;
+    font-weight: bold;
+    text-decoration: none; /* Ensure links styled as buttons don't underline */
+    display: inline-block;
+    transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+
+/* Hover Effects for Buttons */
+button:hover, 
+.btn:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+/* Hyperlinks */
+a {
+    color: #00f; /* Blue link color */
+    text-decoration: none;
+    font-weight: bold;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Preformatted Text */
+pre {
+    background: rgba(0, 0, 0, 0.1); /* Light black background */
+    padding: 15px;
+    border-radius: 5px;
+    overflow-x: auto;
+}
+
+/* Additional Features Section */
+.additional-feature {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.additional-feature p {
+    font-size: 1.1em;
+    color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        width: 90%; /* Adjust container width for smaller screens */
+    }
+
+    h1, h2 {
+        font-size: 1.5em; /* Adjust heading size */
+    }
+
+    input[type="text"], 
+    input[type="password"], 
+    input[type="file"], 
+    textarea {
+        font-size: 1em; /* Adjust input font size */
+    }
+
+    button, 
+    .btn {
+        font-size: 1em; /* Adjust button font size */
+    }
+}

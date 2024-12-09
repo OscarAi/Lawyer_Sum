@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal Document Summarizer</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>Welcome to Legal Summarizer</h1>
+            <a href="/logout" class="logout-btn">Logout</a>
+        </div>
+    </header>
+    <div class="container">
+        <form id="uploadForm" method="POST" action="/upload" enctype="multipart/form-data">
+            <label for="file">Upload a PDF File:</label>
+            <input type="file" id="file" name="file" accept="application/pdf" required>
+            <button type="submit">Summarize</button>
+        </form>
+
+        <!-- Process File and Free Text button -->
+        <div class="additional-feature">
+            <p>Want to add more context to your file?</p>
+            <a href="/FreeSpeechSum" class="btn">Process File/s and using Free Text</a>
+        </div>
+
+        <!-- Output area for displaying the response -->
+        <div id="output" class="output"></div>
+    </div>
+    <script>
+        document.getElementById('uploadForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            document.getElementById('output').innerText = 'Processing...'; // Show loading message
+
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            if (result.summary) {
+                document.getElementById('output').innerText = result.summary;
+            } else {
+                document.getElementById('output').innerText = 'Error: ' + (result.error || 'Failed to process the document.');
+            }
+        };
+    </script>
+</body>
+</html>

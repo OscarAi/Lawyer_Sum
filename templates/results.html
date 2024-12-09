@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summary Results</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Summary Results</h1>
+        <p><strong>File Name:</strong> {{ filename }}</p>
+        <p><strong>One-Line Summary:</strong> {{ short_summary }}</p>
+        <h2>Full Summary:</h2>
+        <p>{{ full_summary }}</p>
+        <a href="/">Upload Another File</a>
+    </div>
+</body>
+</html>

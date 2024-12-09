@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Processing</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>File Processing and Search</h1>
+
+        <!-- Form for File Upload and Text Search -->
+        <form action="/process" method="POST" enctype="multipart/form-data">
+            <!-- File Upload Section -->
+            <div class="file-upload">
+                <label for="files">Upload Files:</label>
+                <input type="file" id="files" name="files" multiple required>
+            </div>
+
+            <!-- Search Text Input Section -->
+            <div class="search-text">
+                <label for="searchText">Enter Text to Search:</label>
+                <textarea id="searchText" name="searchText" rows="4" cols="50" placeholder="Type your search text here..." required></textarea>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="submit-section">
+                <button type="submit" id="submitBtn">Process Files</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
