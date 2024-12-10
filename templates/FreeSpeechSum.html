@@ -3,10 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File Processing</title>
+    <title>File Processing and Search</title>
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
+    <!-- Banner Section -->
+    <header>
+        <div class="banner">
+            <div class="banner-left">
+                <h2>Welcome to File Processing</h2>
+            </div>
+            <div class="banner-right">
+                <a href="/" class="btn">Back to Main Page</a>
+                <a href="/logout" class="logout-btn">Logout</a>
+            </div>
+        </div>
+        
+    </header>
+
+    <!-- Container for File Processing and Search -->
     <div class="container">
         <h1>File Processing and Search</h1>
 
@@ -16,6 +31,7 @@
             <div class="file-upload">
                 <label for="files">Upload Files:</label>
                 <input type="file" id="files" name="files" multiple required>
+                <small>Allowed file types: PDF</small>
             </div>
 
             <!-- Search Text Input Section -->
@@ -30,5 +46,7 @@
             </div>
         </form>
     </div>
+
+    
 </body>
 </html>

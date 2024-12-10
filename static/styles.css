@@ -138,6 +138,8 @@ pre {
     color: white;
 }
 
+
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .container {
@@ -159,4 +161,7 @@ pre {
     .btn {
         font-size: 1em; /* Adjust button font size */
     }
+
+        
+    
 }
