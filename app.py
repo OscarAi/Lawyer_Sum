@@ -49,6 +49,69 @@ with app.app_context():
 # Helper function to process a single file
 import time
 
+def extract_text_from_pdf(file):
+    # Extract text from a PDF file
+    with pdfplumber.open(file) as pdf:
+        return " ".join([page.extract_text() for page in pdf.pages if page.extract_text()])
+
+
+
+def summarize_text(text):
+    try:
+        max_chunk_size = 3000  # Adjust chunk size to fit OpenAI token limits
+        chunks = [text[i:i+max_chunk_size] for i in range(0, len(text), max_chunk_size)]
+
+        full_summary = ""
+        for i, chunk in enumerate(chunks, start=1):
+            logging.info(f"Sending chunk {i}/{len(chunks)} to OpenAI API...")
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": "You are a helpful assistant."},
+                    {"role": "user", "content": chunk}
+                ],
+                max_tokens=500
+            )
+            # Correct access to the response object
+            if response.choices:
+                full_summary += response.choices[0].message['content'].strip() + " "
+        return full_summary.strip()
+    except openai.error.OpenAIError as e:
+        logging.error(f"OpenAI API Error: {e}")
+        return "An error occurred while summarizing the document."
+
+
+def process_files_concurrently(files, search_text):
+    # Combine file texts and search text, then summarize
+    with ThreadPoolExecutor() as executor:
+        file_texts = list(executor.map(extract_text_from_pdf, files))
+
+    combined_text = "\n".join(file_texts)
+    combined_text_with_search = f"User Input: {search_text}\n\n{combined_text}"
+    combined_summary = summarize_text(combined_text_with_search)
+
+    result = {
+        'filename': "Combined Summary",
+        'summary': combined_summary,
+    }
+    return [result]
+
+def generate_short_summary(full_summary):
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant that provides concise summaries."},
+                {"role": "user", "content": f"Provide a one-line summary of this text:\n\n{full_summary}"}
+            ],
+            max_tokens=50,
+            temperature=0.5
+        )
+        return response['choices'][0]['message']['content'].strip()
+    except openai.error.OpenAIError as e:
+        logging.error(f"OpenAI API Error: {e}")
+        return "An error occurred while generating the short summary."
+
 def process_file(file):
     try:
         start_time = time.time()
@@ -163,103 +226,89 @@ def upload_file():
     return render_template('results.html', results=[result])
 
 # Route: Process Multiple Files
-@app.route('/process', methods=['POST'])
-def process_files():
-    try:
-        if 'user' not in session:
-            flash("Please log in to access this page.")
-            return redirect(url_for('login'))
+from concurrent.futures import ThreadPoolExecutor
 
-        if 'files' not in request.files or 'searchText' not in request.form:
-            flash("Please upload files and enter search text.")
-            return redirect(url_for('FreeSpeechSum'))
+# @app.route('/process', methods=['POST'])
+# def process_files():
+#     try:
+#         if 'user' not in session:
+#             flash("Please log in to access this page.")
+#             return redirect(url_for('login'))
 
-        files = request.files.getlist('files')
-        search_text = request.form.get('searchText')
+#         if 'files' not in request.files or 'searchText' not in request.form:
+#             flash("Please upload files and enter search text.")
+#             return redirect(url_for('FreeSpeechSum'))
 
-        if not files:
-            flash("No files uploaded.")
-            return redirect(url_for('FreeSpeechSum'))
+#         files = request.files.getlist('files')
+#         search_text = request.form.get('searchText')
 
-        combined_text = ""
-        for file in files:
-            if file.filename != '':
-                # Process each file and concatenate their text
-                filename = secure_filename(file.filename)
-                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                file.save(filepath)
-                file_text = extract_text_from_pdf(filepath)
-                combined_text += f"\n\n--- Content from {filename} ---\n\n{file_text}"
-                os.remove(filepath)
+#         if not files:
+#             flash("No files uploaded.")
+#             return redirect(url_for('FreeSpeechSum'))
 
-        # Add user input (search text) to the combined content
-        combined_text_with_search = f"User Input: {search_text}\n\n{combined_text}"
+#         combined_text = ""
+#         results = []
 
-        # Generate a single combined summary
-        combined_summary = summarize_text(combined_text_with_search)
+#         # Process files concurrently
+#         def process_file_and_extract_text(file):
+#             filename = secure_filename(file.filename)
+#             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+#             file.save(filepath)
 
-        # Pass the combined summary to the results page
-        result = {
-            'filename': "Combined Summary",
-            'short_summary': generate_short_summary(combined_summary),
-            'full_summary': combined_summary,
-        }
+#             logging.info(f"Processing file: {filename}")
+#             file_text = extract_text_from_pdf(filepath)
+#             os.remove(filepath)  # Clean up the file after processing
+#             return f"\n\n--- Content from {filename} ---\n\n{file_text}"
 
-        return render_template('results.html', results=[result])
+#         with ThreadPoolExecutor() as executor:
+#             # Process each file concurrently and collect their texts
+#             file_texts = list(executor.map(process_file_and_extract_text, files))
 
-    except Exception as e:
-        logging.error(f"Error processing files: {e}")
-        flash("An error occurred while processing your files.")
-        return redirect(url_for('FreeSpeechSum'))
+#         # Combine all file texts
+#         combined_text = "\n".join(file_texts)
+
+#         # Add user input (search text) to the combined content
+#         combined_text_with_search = f"User Input: {search_text}\n\n{combined_text}"
+
+#         # Generate a single combined summary
+#         combined_summary = summarize_text(combined_text_with_search)
+
+#         # Prepare the result for rendering
+#         result = {
+#             'filename': "Combined Summary",
+#             'short_summary': generate_short_summary(combined_summary),
+#             'full_summary': combined_summary,
+#         }
+
+#         return render_template('results.html', results=[result])
+
+#     except Exception as e:
+#         logging.error(f"Error processing files: {e}")
+#         flash("An error occurred while processing your files.")
+#         return redirect(url_for('FreeSpeechSum'))
 
 # Helper functions
-def extract_text_from_pdf(filepath):
-    text = ""
-    with pdfplumber.open(filepath) as pdf:
-        for page in pdf.pages:
-            text += page.extract_text()
-            logging.info(f"Processed page {page.page_number} of {len(pdf.pages)}")
-    return text
 
-def summarize_text(text):
-    try:
-        # Split text into chunks (e.g., 3000 characters per chunk)
-        max_chunk_size = 3000
-        chunks = [text[i:i+max_chunk_size] for i in range(0, len(text), max_chunk_size)]
+    
+@app.route('/process', methods=['POST'])
+def process_files():
+    if 'user' not in session:
+        flash("Please log in to access this page.")
+        return redirect(url_for('login'))
 
-        full_summary = ""
-        for chunk in chunks:
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": "You are a helpful assistant that summarizes legal documents."},
-                    {"role": "user", "content": f"Summarize this legal document:\n\n{chunk}"}
-                ],
-                max_tokens=500,
-                temperature=0.5
-            )
-            full_summary += response['choices'][0]['message']['content'].strip() + " "
+    files = request.files.getlist('files')
+    search_text = request.form.get('searchText')
 
-        return full_summary.strip()
-    except openai.error.OpenAIError as e:
-        logging.error(f"OpenAI API Error: {e}")
-        return "An error occurred while summarizing the document."
+    if not files or not search_text:
+        flash("No files uploaded or search text missing.")
+        return redirect(url_for('index'))
 
-def generate_short_summary(full_summary):
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant that provides concise summaries."},
-                {"role": "user", "content": f"Provide a one-line summary of this text:\n\n{full_summary}"}
-            ],
-            max_tokens=50,
-            temperature=0.5
-        )
-        return response['choices'][0]['message']['content'].strip()
-    except openai.error.OpenAIError as e:
-        logging.error(f"OpenAI API Error: {e}")
-        return "An error occurred while generating the short summary."
+    results = process_files_concurrently(files, search_text)
+    
+    # Debug: Print the results to check
+    logging.debug(f"Results: {results}")
+
+    return render_template('FreeSpeechResults.html', results=results)
 
 # Main entry point
 if __name__ == '__main__':
